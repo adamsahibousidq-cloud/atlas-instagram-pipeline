@@ -42,6 +42,26 @@ def iter_slots(count: int) -> list[datetime]:
     return slots
 
 
+def new_photo_name(post_id: int) -> str:
+    return f"photo_{post_id:02d}.jpg"
+
+
+def rename_photos(posts: list[dict]) -> int:
+    """Remplace les anciens noms (Photo 1.JPG, etc.) par photo_01.jpg, photo_02.jpg…"""
+    renamed = 0
+    for post in posts:
+        post_id = post.get("id")
+        if not post_id:
+            continue
+        new_name = new_photo_name(post_id)
+        old_name = post.get("photo")
+        if old_name != new_name:
+            print(f"  {old_name} → {new_name}")
+            post["photo"] = new_name
+            renamed += 1
+    return renamed
+
+
 def approve_all() -> None:
     posts = load_posts()
     if not posts:
@@ -49,6 +69,11 @@ def approve_all() -> None:
         return
 
     posts.sort(key=lambda p: p.get("id", 0))
+
+    print("Renommage des photos…")
+    count = rename_photos(posts)
+    print(f"{count} nom(s) de photo mis à jour.")
+
     slots = iter_slots(len(posts))
 
     for post, slot in zip(posts, slots):
