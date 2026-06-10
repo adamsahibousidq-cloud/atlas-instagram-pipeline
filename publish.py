@@ -4,7 +4,6 @@ import json
 import os
 from datetime import datetime, time, timedelta
 from pathlib import Path
-from urllib.parse import quote
 
 import requests
 from dotenv import load_dotenv
@@ -13,10 +12,6 @@ PHOTOS_DIR = Path("photos")
 CAPTIONS_FILE = Path("captions.json")
 GRAPH_API_VERSION = "v21.0"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
-GITHUB_PHOTOS_BASE = (
-    "https://raw.githubusercontent.com/adamsahibousidq-cloud/"
-    "atlas-instagram-pipeline/main/photos/"
-)
 TIMEZONE = "Europe/Paris"
 
 
@@ -147,8 +142,9 @@ def build_instagram_caption(post: dict) -> str:
     return f"{post['caption']}\n\n{tags}".strip()
 
 
-def github_photo_url(filename: str) -> str:
-    return f"{GITHUB_PHOTOS_BASE}{quote(filename)}"
+def github_photo_url(photo_name: str) -> str:
+    base = "https://raw.githubusercontent.com/adamsahibousidq-cloud/atlas-instagram-pipeline/main/photos/"
+    return base + photo_name
 
 
 def create_media_container(
