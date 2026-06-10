@@ -142,11 +142,20 @@ def build_instagram_caption(post: dict) -> str:
     return f"{post['caption']}\n\n{tags}".strip()
 
 
-def create_media_container(token: str, ig_id: str, caption: str) -> str:
+def create_media_container(
+    token: str,
+    ig_id: str,
+    caption: str,
+    image_url: str | None = None,
+) -> str:
     url = f"https://graph.facebook.com/{GRAPH_API_VERSION}/{ig_id}/media"
+    params = {}
+    if image_url:
+        params["image_url"] = image_url
     response = requests.post(
         url,
-        params={
+        params=params,
+        data={
             "access_token": token,
             "upload_type": "resumable",
             "media_type": "IMAGE",
