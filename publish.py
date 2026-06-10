@@ -142,9 +142,11 @@ def build_instagram_caption(post: dict) -> str:
     return f"{post['caption']}\n\n{tags}".strip()
 
 
-def github_photo_url(photo_name: str) -> str:
-    base = "https://raw.githubusercontent.com/adamsahibousidq-cloud/atlas-instagram-pipeline/main/photos/"
-    return base + photo_name
+GITHUB_PHOTOS_BASE = "https://raw.githubusercontent.com/adamsahibousidq-cloud/atlas-instagram-pipeline/main/photos/"
+
+
+def github_photo_url(filename: str) -> str:
+    return GITHUB_PHOTOS_BASE + filename
 
 
 def create_media_container(
