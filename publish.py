@@ -4,6 +4,7 @@ import json
 import os
 from datetime import datetime, time, timedelta
 from pathlib import Path
+from urllib.parse import quote
 
 import requests
 from dotenv import load_dotenv
@@ -12,6 +13,10 @@ PHOTOS_DIR = Path("photos")
 CAPTIONS_FILE = Path("captions.json")
 GRAPH_API_VERSION = "v21.0"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+GITHUB_PHOTOS_BASE = (
+    "https://raw.githubusercontent.com/adamsahibousidq-cloud/"
+    "atlas-instagram-pipeline/main/photos/"
+)
 TIMEZONE = "Europe/Paris"
 
 
@@ -142,6 +147,10 @@ def build_instagram_caption(post: dict) -> str:
     return f"{post['caption']}\n\n{tags}".strip()
 
 
+def github_photo_url(filename: str) -> str:
+    return f"{GITHUB_PHOTOS_BASE}{quote(filename)}"
+
+
 def create_media_container(
     token: str,
     ig_id: str,
@@ -150,19 +159,13 @@ def create_media_container(
 ) -> str:
     url = f"https://graph.facebook.com/{GRAPH_API_VERSION}/{ig_id}/media"
     params = {}
+    data = {"access_token": token, "caption": caption}
     if image_url:
         params["image_url"] = image_url
-    response = requests.post(
-        url,
-        params=params,
-        data={
-            "access_token": token,
-            "upload_type": "resumable",
-            "media_type": "IMAGE",
-            "caption": caption,
-        },
-        timeout=60,
-    )
+    else:
+        data["upload_type"] = "resumable"
+        data["media_type"] = "IMAGE"
+    response = requests.post(url, params=params, data=data, timeout=60)
     response.raise_for_status()
     container_id = response.json().get("id")
     if not container_id:
@@ -205,8 +208,8 @@ def publish_media(token: str, ig_id: str, container_id: str) -> str:
 
 
 def publish_photo(token: str, ig_id: str, photo: Path, caption: str) -> str:
-    container_id = create_media_container(token, ig_id, caption)
-    upload_image(token, container_id, photo)
+    image_url = github_photo_url(photo.name)
+    container_id = create_media_container(token, ig_id, caption, image_url=image_url)
     return publish_media(token, ig_id, container_id)
 
 
