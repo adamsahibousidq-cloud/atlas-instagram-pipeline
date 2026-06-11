@@ -1,9 +1,12 @@
 """Publie le premier post de captions.json sur Instagram (test, sans contrainte de date/statut)."""
 
+import sys
 from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
+
+sys.stdout.reconfigure(encoding="utf-8")
 
 from publish import (
     CAPTIONS_FILE,

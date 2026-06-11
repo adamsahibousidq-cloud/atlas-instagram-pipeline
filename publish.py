@@ -2,11 +2,14 @@
 
 import json
 import os
+import sys
 from datetime import datetime, time, timedelta
 from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
+
+sys.stdout.reconfigure(encoding="utf-8")
 
 PHOTOS_DIR = Path("photos")
 CAPTIONS_FILE = Path("captions.json")
