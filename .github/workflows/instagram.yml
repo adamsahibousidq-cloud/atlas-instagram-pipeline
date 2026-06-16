@@ -2,8 +2,8 @@ name: Publication Instagram
 
 on:
   schedule:
-    # Lundi 16h00 UTC et jeudi 16h30 UTC (~09h00 / 18h30 Europe/Paris)
-    - cron: "0 16 * * 1"
+    # Lundi et jeudi à 16h30 UTC = 18h30 Europe/Paris (CEST, UTC+2)
+    - cron: "30 16 * * 1"
     - cron: "30 16 * * 4"
   workflow_dispatch:
 
