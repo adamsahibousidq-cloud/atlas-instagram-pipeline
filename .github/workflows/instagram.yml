@@ -2,9 +2,11 @@ name: Publication Instagram
 
 on:
   schedule:
-    # Lundi et jeudi à 16h30 UTC = 18h30 Europe/Paris (CEST, UTC+2)
-    - cron: "30 16 * * 1"
-    - cron: "30 16 * * 4"
+    # Lundi et jeudi à 17h30 UTC : toujours après 18h30 Europe/Paris,
+    # que l'on soit en CEST (UTC+2, ~30 min de marge) ou en CET (UTC+1, pile à l'heure).
+    # Fixe à l'année, pas besoin d'ajuster au changement d'heure.
+    - cron: "30 17 * * 1"
+    - cron: "30 17 * * 4"
   workflow_dispatch:
 
 permissions:
@@ -18,17 +20,17 @@ jobs:
       PAGE_ACCESS_TOKEN: ${{ secrets.PAGE_ACCESS_TOKEN }}
       IG_ACCOUNT_ID: ${{ secrets.IG_ACCOUNT_ID }}
     steps:
-      - name: Attendre le créneau 16h30 UTC si démarrage anticipé
+      - name: Attendre le créneau 17h30 UTC si démarrage anticipé
         if: github.event_name == 'schedule'
         run: |
-          TARGET=$(date -u -d "today 16:30" +%s)
+          TARGET=$(date -u -d "today 17:30" +%s)
           NOW=$(date -u +%s)
           WAIT=$((TARGET - NOW))
           if [ "$WAIT" -gt 0 ] && [ "$WAIT" -le 900 ]; then
-            echo "Démarrage anticipé — attente de ${WAIT}s jusqu'à 16h30 UTC (18h30 CEST)"
+            echo "Démarrage anticipé — attente de ${WAIT}s jusqu'à 17h30 UTC"
             sleep "$WAIT"
           fi
-          echo "Heure de lancement : $(date -u '+%H:%M:%S UTC') = $(TZ=Europe/Paris date '+%H:%M:%S CEST')"
+          echo "Heure de lancement : $(date -u '+%H:%M:%S UTC') = $(TZ=Europe/Paris date '+%H:%M:%S %Z')"
 
       - name: Checkout
         uses: actions/checkout@v4
