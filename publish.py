@@ -17,7 +17,6 @@ CAPTIONS_FILE = Path("captions.json")
 GRAPH_API_VERSION = "v21.0"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 PARIS_TZ = ZoneInfo("Europe/Paris")
-MAX_PUBLISH_DELAY_HOURS = 3  # Fenêtre max après le créneau prévu (en heures)
 
 
 def now_local() -> datetime:
@@ -223,16 +222,6 @@ def can_publish_now(posts: list[dict], candidate: dict, now: datetime) -> tuple[
 
     if now < scheduled:
         return False, f"Créneau non atteint (prévu le {format_slot(scheduled)})"
-
-    # Si GitHub Actions démarre trop tard (ex. 1h du matin au lieu de 18h30),
-    # ne pas publier hors fenêtre — sauf si le post est très en retard (>24h).
-    delay = now - scheduled
-    delay_hours = delay.total_seconds() / 3600
-    if MAX_PUBLISH_DELAY_HOURS < delay_hours < 24:
-        return False, (
-            f"Créneau {format_slot(scheduled)} dépassé de {delay_hours:.0f}h "
-            f"(fenêtre de {MAX_PUBLISH_DELAY_HOURS}h expirée — report au prochain créneau)"
-        )
 
     last = last_published_datetime(posts)
     if last:
