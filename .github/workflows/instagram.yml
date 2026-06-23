@@ -1,10 +1,13 @@
 name: Publication Instagram
 
 on:
+  # Déclencheur principal : appel externe (cron-job.org) sur workflow_dispatch
+  # à 18h30 Europe/Paris précises, lundi et jeudi. Le schedule GitHub ci-dessous
+  # n'est qu'un filet de sécurité : son horaire n'est jamais garanti par GitHub
+  # (retards de plusieurs heures observés), mais publish.py est idempotent
+  # (ne republie pas un post déjà "published"), donc un déclenchement en double
+  # ne cause aucun doublon sur Instagram.
   schedule:
-    # Lundi et jeudi à 17h30 UTC : toujours après 18h30 Europe/Paris,
-    # que l'on soit en CEST (UTC+2, ~30 min de marge) ou en CET (UTC+1, pile à l'heure).
-    # Fixe à l'année, pas besoin d'ajuster au changement d'heure.
     - cron: "30 17 * * 1"
     - cron: "30 17 * * 4"
   workflow_dispatch:
