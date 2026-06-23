@@ -1,15 +1,12 @@
 name: Publication Instagram
 
 on:
-  # Déclencheur principal : appel externe (cron-job.org) sur workflow_dispatch
-  # à 18h30 Europe/Paris précises, lundi et jeudi. Le schedule GitHub ci-dessous
-  # n'est qu'un filet de sécurité : son horaire n'est jamais garanti par GitHub
-  # (retards de plusieurs heures observés), mais publish.py est idempotent
-  # (ne republie pas un post déjà "published"), donc un déclenchement en double
-  # ne cause aucun doublon sur Instagram.
   schedule:
-    - cron: "30 17 * * 1"
-    - cron: "30 17 * * 4"
+    # Lundi et jeudi à 11h00 UTC : toujours à ou après 12h00 Europe/Paris,
+    # que l'on soit en CEST (UTC+2, 1h de marge) ou en CET (UTC+1, pile à l'heure).
+    # Fixe à l'année, pas besoin d'ajuster au changement d'heure.
+    - cron: "0 11 * * 1"
+    - cron: "0 11 * * 4"
   workflow_dispatch:
 
 permissions:
@@ -23,14 +20,14 @@ jobs:
       PAGE_ACCESS_TOKEN: ${{ secrets.PAGE_ACCESS_TOKEN }}
       IG_ACCOUNT_ID: ${{ secrets.IG_ACCOUNT_ID }}
     steps:
-      - name: Attendre le créneau 17h30 UTC si démarrage anticipé
+      - name: Attendre le créneau 11h00 UTC si démarrage anticipé
         if: github.event_name == 'schedule'
         run: |
-          TARGET=$(date -u -d "today 17:30" +%s)
+          TARGET=$(date -u -d "today 11:00" +%s)
           NOW=$(date -u +%s)
           WAIT=$((TARGET - NOW))
           if [ "$WAIT" -gt 0 ] && [ "$WAIT" -le 900 ]; then
-            echo "Démarrage anticipé — attente de ${WAIT}s jusqu'à 17h30 UTC"
+            echo "Démarrage anticipé — attente de ${WAIT}s jusqu'à 11h00 UTC"
             sleep "$WAIT"
           fi
           echo "Heure de lancement : $(date -u '+%H:%M:%S UTC') = $(TZ=Europe/Paris date '+%H:%M:%S %Z')"

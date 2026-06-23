@@ -21,7 +21,7 @@ def main() -> None:
     group.add_argument(
         "--publish",
         action="store_true",
-        help="Publie un seul post approved (lundi et jeudi à 18h30)",
+        help="Publie un seul post approved (lundi et jeudi à 12h00)",
     )
     args = parser.parse_args()
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 CAPTIONS_FILE = Path("captions.json")
 FIRST_SLOT = datetime(2026, 6, 11, 18, 30)  # jeudi 11 juin 2026, 18h30
-PUBLISH_TIME = "18:30"
+PUBLISH_TIME = "12:00"
 
 
 def load_posts() -> list[dict]:

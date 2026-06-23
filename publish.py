@@ -23,10 +23,10 @@ def now_local() -> datetime:
     """Heure courante en Europe/Paris, indépendamment de la variable TZ système."""
     return datetime.now(tz=PARIS_TZ).replace(tzinfo=None)
 
-MONDAY_SLOT = (0, time(18, 30))
-THURSDAY_SLOT = (3, time(18, 30))
+MONDAY_SLOT = (0, time(12, 0))
+THURSDAY_SLOT = (3, time(12, 0))
 FIRST_SLOT = datetime(2026, 6, 11, 18, 30)  # jeudi 11 juin 2026, 18h30
-PUBLISH_TIME = "18:30"
+PUBLISH_TIME = "12:00"
 MIN_DAYS_BETWEEN = 3
 MAX_POSTS_PER_WEEK = 2
 
