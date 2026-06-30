@@ -225,8 +225,8 @@ def can_publish_now(posts: list[dict], candidate: dict, now: datetime) -> tuple[
 
     last = last_published_datetime(posts)
     if last:
-        delta = now - last
-        if delta < timedelta(days=MIN_DAYS_BETWEEN):
+        days_since = (now.date() - last.date()).days
+        if days_since < MIN_DAYS_BETWEEN:
             next_allowed = last + timedelta(days=MIN_DAYS_BETWEEN)
             return False, (
                 f"Délai minimum de {MIN_DAYS_BETWEEN} jours non respecté "
