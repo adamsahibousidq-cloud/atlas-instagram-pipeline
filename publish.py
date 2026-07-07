@@ -3,6 +3,7 @@
 import json
 import os
 import sys
+import time as time_module
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -192,6 +193,39 @@ def upload_image(token: str, container_id: str, image_path: Path) -> None:
     response.raise_for_status()
 
 
+def wait_for_container_ready(
+    token: str,
+    container_id: str,
+    timeout: float = 90.0,
+    interval: float = 3.0,
+) -> None:
+    """Attend que le conteneur média soit prêt (FINISHED) avant publication.
+
+    L'API Graph traite l'image en arrière-plan après sa création ; publier
+    trop tôt échoue avec « media not ready » (erreur intermittente selon la
+    vitesse de récupération de l'image, cf. échec photo_08).
+    """
+    url = f"https://graph.facebook.com/{GRAPH_API_VERSION}/{container_id}"
+    deadline = time_module.monotonic() + timeout
+    while True:
+        response = requests.get(
+            url,
+            params={"access_token": token, "fields": "status_code"},
+            timeout=30,
+        )
+        response.raise_for_status()
+        status = response.json().get("status_code")
+        if status == "FINISHED":
+            return
+        if status in ("ERROR", "EXPIRED"):
+            raise RuntimeError(f"Conteneur média en échec (status_code={status})")
+        if time_module.monotonic() >= deadline:
+            raise RuntimeError(
+                f"Conteneur média non prêt après {timeout:.0f}s (status_code={status})"
+            )
+        time_module.sleep(interval)
+
+
 def publish_media(token: str, ig_id: str, container_id: str) -> str:
     url = f"https://graph.facebook.com/{GRAPH_API_VERSION}/{ig_id}/media_publish"
     response = requests.post(
@@ -212,6 +246,7 @@ def publish_media(token: str, ig_id: str, container_id: str) -> str:
 def publish_photo(token: str, ig_id: str, photo: Path, caption: str) -> str:
     image_url = github_photo_url(photo.name)
     container_id = create_media_container(token, ig_id, caption, image_url=image_url)
+    wait_for_container_ready(token, container_id)
     return publish_media(token, ig_id, container_id)
 
 
